@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>CONTROL DECK C-07</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--acc:#f4d41f;--ink:#e9eaec;--dim:rgba(233,234,236,.56);--line:rgba(233,234,236,.22)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;overflow:hidden;color:var(--ink);
+  font-family:"Saira Condensed","Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#view{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+
+/* ---- menu ---- */
+#menu{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:flex-start;
+  padding:0 clamp(22px,7vw,110px);overflow-y:auto;
+  background:linear-gradient(90deg,rgba(5,6,8,.92) 0%,rgba(5,6,8,.7) 34%,rgba(5,6,8,0) 68%);
+  transition:opacity .5s}
+#menu.hide{opacity:0;pointer-events:none}
+.panel{width:min(360px,100%);padding:24px 0;margin:auto 0}
+.tag{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;letter-spacing:.34em;color:#0a0a0a}
+.tag b{background:var(--acc);padding:2px 9px 1px;font-weight:700}
+.tag i{flex:1;height:1px;background:var(--line)}
+.tag span{color:var(--dim);font-weight:500;letter-spacing:.2em}
+h1{font-weight:700;font-size:clamp(46px,min(11vw,13vh),88px);line-height:.86;letter-spacing:.02em;margin:16px 0 10px;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--acc)}
+.sub{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:12px;letter-spacing:.2em;color:var(--dim);
+  padding-left:10px;border-left:3px solid var(--acc)}
+.btns{display:flex;flex-direction:column;gap:6px;margin:clamp(14px,4vh,28px) 0 clamp(10px,2.5vh,20px)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.btn{position:relative;display:flex;align-items:baseline;justify-content:space-between;text-align:left;padding:9px 14px 8px 16px;
+  font-weight:600;font-size:19px;letter-spacing:.2em;border:1px solid var(--line);background:rgba(16,17,20,.62);
+  transition:background .15s,border-color .15s,color .15s}
+.btn::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--line);transition:background .15s}
+.btn small{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:11px;letter-spacing:.14em;color:var(--dim)}
+.btn:hover,.btn:focus-visible{background:rgba(244,212,31,.14);border-color:var(--acc);outline:none}
+.btn:hover::before,.btn:focus-visible::before{background:var(--acc)}
+.btn.main{background:var(--acc);border-color:var(--acc);color:#0b0b0b}
+.btn.main small{color:rgba(10,10,10,.7)}
+.btn.main::before{background:#0b0b0b}
+.btn.main:hover,.btn.main:focus-visible{background:#fff07a}
+.vol{display:flex;align-items:center;gap:12px;padding:4px 2px 0 16px;font-weight:600;font-size:15px;letter-spacing:.2em}
+.vol span{width:40px}
+.vol output{width:44px;text-align:right;font-weight:500;font-size:14px;letter-spacing:.04em;color:var(--dim);font-variant-numeric:tabular-nums}
+.vol input{flex:1;min-width:0;height:28px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer;touch-action:pan-y}
+.vol input::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--acc) var(--p,60%),var(--line) var(--p,60%))}
+.vol input::-moz-range-track{height:2px;background:var(--line)}
+.vol input::-moz-range-progress{height:2px;background:var(--acc)}
+.vol input::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height:16px;margin-top:-7px;background:var(--acc);border:0;border-radius:0}
+.vol input::-moz-range-thumb{width:8px;height:16px;background:var(--acc);border:0;border-radius:0}
+.vol input:focus-visible{outline:1px solid var(--acc);outline-offset:4px}
+.help{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:12px;line-height:2;color:var(--dim);letter-spacing:.06em}
+.help kbd{font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;color:var(--ink);
+  border:1px solid var(--line);padding:1px 6px 0;margin-right:4px}
+.only-touch{display:none}
+@media (pointer:coarse){.only-touch{display:block}.only-mouse{display:none}}
+
+/* ---- hud ---- */
+#hud{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .4s}
+#hud.on{opacity:1}
+#dot{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:rgba(255,255,255,.55)}
+#prompt{position:absolute;left:50%;top:63%;transform:translateX(-50%);white-space:nowrap;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:13px;letter-spacing:.14em;
+  padding:7px 16px 7px 12px;background:rgba(8,9,11,.72);border-left:3px solid var(--acc);opacity:0;transition:opacity .2s}
+#prompt.on{opacity:1}
+#prompt kbd{font-family:"Saira Condensed",sans-serif;font-weight:700;color:#0a0a0a;background:var(--acc);padding:0 6px;margin-right:10px;letter-spacing:.06em}
+#toast{position:absolute;left:50%;top:9%;transform:translateX(-50%);white-space:nowrap;
+  font-weight:600;font-size:17px;letter-spacing:.36em;color:var(--acc);opacity:0;transition:opacity .35s}
+#toast.on{opacity:1}
+#pauseBtn{position:absolute;right:14px;top:14px;width:42px;height:42px;pointer-events:auto;
+  border:1px solid var(--line);background:rgba(8,9,11,.5);font-weight:700;font-size:14px;letter-spacing:.1em;color:var(--acc)}
+#actBtn{position:absolute;right:26px;bottom:110px;width:76px;height:76px;border-radius:50%;pointer-events:auto;
+  border:1px solid var(--acc);background:rgba(244,212,31,.16);font-weight:700;font-size:16px;letter-spacing:.16em;color:var(--acc);display:none}
+#actBtn.on{display:block}
+#stick{position:absolute;width:112px;height:112px;margin:-56px;border-radius:50%;border:1px solid var(--line);display:none}
+#stick i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:rgba(244,212,31,.3)}
+#dbg{position:absolute;left:10px;bottom:8px;font-family:monospace;font-size:12px;color:var(--acc);white-space:pre}
+@media (max-width:640px){
+  #menu{background:linear-gradient(180deg,rgba(5,6,8,.86),rgba(5,6,8,.55));justify-content:center}
+  #prompt{top:16%}
+}
+</style>
+<script type="importmap">
+{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}
+</script>
+</head>
+<body>
+<canvas id="view" tabindex="0"></canvas>
+
+<div id="hud">
+  <div id="dot"></div>
+  <div id="prompt"></div>
+  <div id="toast"></div>
+  <button id="pauseBtn" aria-label="メニュー">II</button>
+  <button id="actBtn">ACT</button>
+  <div id="stick"><i></i></div>
+  <div id="dbg"></div>
+</div>
+
+<div id="menu">
+  <div class="panel">
+    <div class="tag"><b>C-07</b><i></i><span>RING SEGMENT C</span></div>
+    <h1>Control<br><em>Deck</em></h1>
+    <div class="sub">管制デッキと私室 ― 主観視点プロトタイプ</div>
+    <div class="btns">
+      <button class="btn main" id="startBtn"><span>ENTER</span><small id="startSub">入室する</small></button>
+      <button class="btn" id="qualBtn"><span>QUALITY</span><small id="qualSub">標準</small></button>
+      <button class="btn" id="mirBtn"><span>REFLECTION</span><small id="mirSub">入</small></button>
+      <button class="btn" id="fsBtn"><span>FULLSCREEN</span><small id="fsSub">切</small></button>
+      <button class="btn" id="sndBtn"><span>SOUND</span><small id="sndSub">入</small></button>
+      <label class="vol"><span>BGM</span><input type="range" id="bgmVol" min="0" max="100" step="5" aria-label="BGMの音量"><output id="bgmVal"></output></label>
+      <label class="vol"><span>SE</span><input type="range" id="seVol" min="0" max="100" step="5" aria-label="効果音の音量"><output id="seVal"></output></label>
+    </div>
+    <div class="help" id="inapp" style="display:none;color:var(--acc);margin-bottom:8px"></div>
+    <div class="help only-mouse">
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>移動　<kbd>SHIFT</kbd>早歩き</div>
+      <div><kbd>MOUSE</kbd>視点　<kbd>E</kbd>操作　<kbd>ESC</kbd>メニュー　<kbd>F3</kbd>fps表示</div>
+      <div>中央の床のパッドに乗ると起動。東の扉の先は私室です。音が出ます</div>
+    </div>
+    <div class="help only-touch">
+      <div>画面の左半分をドラッグ：移動</div>
+      <div>画面の右半分をドラッグ：視点　／　ACT：操作</div>
+      <div>中央の床のパッドに乗ると起動。東の扉の先は私室です</div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./js/game.js"></script>
+<script>
+// アプリ内ブラウザ（LINE など）では描画が極端に遅くなることがあるので、案内を出す
+try { var ua = navigator.userAgent || '', m = /Line\//.test(ua) ? 'LINE' : /FBAN|FBAV/.test(ua) ? 'Facebook' : /Instagram/.test(ua) ? 'Instagram' : '';
+  if (m) { var e = document.getElementById('inapp'); e.style.display = 'block'; e.textContent = m + ' のアプリ内ブラウザでは重くなることがあります。Chrome などで開いてください。';
+    if (m === 'LINE') { var a = document.createElement('a'); a.href = location.origin + location.pathname + '?openExternalBrowser=1'; a.textContent = '　外部ブラウザで開く'; a.style.color = 'inherit'; e.appendChild(a); } } } catch (e) { }
+</script>
+<script>
+// three.js を取得できなかったときに、黙って止まらないようにする
+setTimeout(function(){ if(!window.ROOM){ var e=document.getElementById('startSub'); if(e) e.textContent='読みこみに失敗しました'; } }, 12000);
+</script>
+</body>
+</html>
