@@ -1282,17 +1282,23 @@ const accTarget = new THREE.Color(...ACCENTS[0].c);
 function setAccent(i) { accent = i; accTarget.setRGB(...ACCENTS[i].c); }
 
 // ---------------------------------------------------------------- build
+// 読みこみの進み具合をメニューに出す。重い処理の前に1フレーム譲って、表示を先に描かせる
+const prog = (pct, label) => { $('startSub').textContent = label; $('bar').style.width = pct + '%'; return new Promise(r => requestAnimationFrame(() => setTimeout(r, 0))); };
 async function build() {
+  await prog(5, '読みこみ中 ― 画像');
   // 文字のテクスチャを描く前に、Web フォントを待つ（読めなければ端末の書体で進む）
   try { await Promise.race([Promise.all([document.fonts.load(`700 40px "Saira Condensed"`), document.fonts.load(`600 40px "Saira Condensed"`), document.fonts.load(`700 40px "Zen Kaku Gothic New"`, '同期中接続承認私室')]), new Promise(r => setTimeout(r, 2500))]); } catch (e) { }
   const [tSurf, tCloud, tOre] = await Promise.all([loadTex('./assets/planet_surface.webp', true), loadTex('./assets/planet_clouds.webp', false), loadTex('./assets/ore_display.webp', true)]);
+  await prog(20, '読みこみ中 ― 惑星');
   for (const t of [tSurf, tCloud]) if (t) t.wrapS = t.wrapT = THREE.MirroredRepeatWrapping;      // 見える範囲より画像が小さいので、鏡像で繰り返す
   bakeSky(tSurf, tCloud); T.ore = tOre;
+  await prog(40, '読みこみ中 ― 管制デッキ');
   buildTextures(); buildMaterials(); buildMaterialsB(); buildShell(); buildLights();
   buildHexWall(); buildWest(); buildEast(); buildSouth(); buildPedestal(); buildPad(); buildDust();
   blob('round', PED.x, PED.z, 1.9, 1.9, .65); blob('rect', X0 + .42, 0, 1.0, 3.9, .55, 0, PH + .011); for (const z of [-3.9, 3.9]) blob('rect', X0 + .34, z, .8, .8, .5, 0, PH + .011);
   for (const [x, z] of [[X0 + .15, Z0 + .15], [X1 - .15, Z0 + .15], [X0 + .15, Z1 - .15], [X1 - .15, Z1 - .15]]) blob('round', x, z, 2.0, 2.0, .5, 0, PH + .011);
   for (const s of [-1, 1]) blob('rect', s * 4.95, Z0 + .3, .8, .9, .5, 0, PH + .011);
+  await prog(60, '読みこみ中 ― 私室');
   const nA = scene.children.length; buildQuarters();
   // 扉が閉まっている間は、いない側の部屋を描かない
   const keep = o => o === holoGroup || o === door.group || o === hemi || o.material === skyMat;
@@ -1307,7 +1313,9 @@ async function build() {
   bMats.push(floors[1].material);
   scene.traverse(o => { const m = o.material; if (o.isPoints || (o.isMesh && m && (m.transparent || m.alphaTest > 0 || m.isShaderMaterial))) { noAO.push(o); return; }
     if (o.isMesh && !o.isInstancedMesh) { o.geometry.computeBoundingBox(); const d = o.geometry.boundingBox.getSize(new THREE.Vector3()).multiply(o.scale).toArray().sort((p, q) => p - q); if (d[1] < .035) noAO.push(o); } });
+  await prog(75, '読みこみ中 ― 照明');
   updatePad(0); buildComposer(); captureEnv(); captureEnv();
+  await prog(90, '読みこみ中 ― 仕上げ');
   for (const [a, b] of [[true, false], [false, true], [true, true]]) { showRooms(a, b); try { renderer.compile(scene, camera); } catch (e) { } }
   window.addEventListener('resize', () => { auto.slow = auto.good = 0; auto.triedUp = auto.locked = false; buildComposer(); });
   requestAnimationFrame(t => { last = t; tick(t); });
@@ -1335,12 +1343,13 @@ function tick(now) {
   requestAnimationFrame(tick);
   const raw = (now - last) / 1000, dt = Math.min(raw, .05); last = now; time = frozen === null ? time + dt : frozen; if (!document.hidden && !cfgOver) autoScale(now);
   frame(dt);
-  if (DEBUG) { fpsAcc += raw; fpsN++; if (fpsAcc > .5) { $('dbg').textContent = `${(fpsN / fpsAcc).toFixed(0)} fps  x ${player.x.toFixed(2)} z ${player.z.toFixed(2)}  yaw ${player.yaw.toFixed(2)}  ${quality} ${bufSize.x}x${bufSize.y} x${auto.scale.toFixed(2)} ao ${gtao ? 'on' : 'off'} mir ${mirror.on ? mirror.rt.width + 'x' + mirror.rt.height : 'off'}  calls ${renderer.info.render.calls}  tris ${renderer.info.render.triangles}`; fpsAcc = fpsN = 0; } }
+  if (DEBUG) { fpsAcc += raw; fpsN++; if (fpsAcc > .5) { $('dbg').textContent = `${(fpsN / fpsAcc).toFixed(0)} fps  ${QUAL[quality].jp} ${bufSize.x}x${bufSize.y} x${auto.scale.toFixed(2)}\nao ${gtao ? 'on' : 'off'}  mir ${mirror.on ? mirror.rt.width + 'x' + mirror.rt.height : 'off'}  calls ${renderer.info.render.calls}  tris ${renderer.info.render.triangles}\nx ${player.x.toFixed(2)} z ${player.z.toFixed(2)} yaw ${player.yaw.toFixed(2)}`; fpsAcc = fpsN = 0; } }
 }
 
 // ---------------------------------------------------------------- input / ui
 function lock() { if (COARSE) return; try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } }
 function start() {
+  if (!window.ROOM.ready) return;
   audio.init();
   state = 'play'; $('menu').classList.add('hide'); $('hud').classList.add('on'); if (!start.once) { start.once = true; player.yaw = START.yaw; player.pitch = START.pitch; } lock(); canvas.focus();
 }
@@ -1351,6 +1360,9 @@ $('qualSub').textContent = QUAL[quality].jp;
 function setMirror(v) { mirror.on = !!v; uMirOn.value = v ? 1 : 0; for (const f of floors) f.material.envMapIntensity = v ? 0 : 1; $('mirSub').textContent = v ? '入' : '切'; }
 $('mirBtn').addEventListener('click', () => setMirror(!mirror.on));
 $('pauseBtn').addEventListener('click', pause);
+// fps などの表示（F3 でも切り替わる）。歩いている間、左上に出る
+function setFps(v) { DEBUG = !!v; if (!DEBUG) $('dbg').textContent = ''; $('fpsSub').textContent = DEBUG ? '入' : '切'; $('dbg').style.display = DEBUG ? 'block' : 'none'; }
+$('fpsBtn').addEventListener('click', () => setFps(!DEBUG)); setFps(DEBUG);
 const fsOn = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
 function toggleFs() {
   const el = document.documentElement;
@@ -1369,7 +1381,7 @@ for (const k of ['bgm', 'se']) {
 $('actBtn').addEventListener('pointerdown', e => { e.stopPropagation(); interact(); });
 document.addEventListener('pointerlockchange', () => { const l = document.pointerLockElement === canvas; if (l) hadLock = true; else if (hadLock && state === 'play') pause(); });
 addEventListener('keydown', e => {
-  if (e.code === 'F3') { DEBUG = !DEBUG; if (!DEBUG) $('dbg').textContent = ''; e.preventDefault(); return; }
+  if (e.code === 'F3') { setFps(!DEBUG); e.preventDefault(); return; }
   if (e.code === 'Escape') { state === 'play' ? pause() : 0; return; }
   if (state !== 'play') return; keys.add(e.code);
   if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) interact();
@@ -1413,4 +1425,4 @@ window.ROOM = {
   get dev() { return { scene, renderer, composer, bloom, mirror, pad, ped, M, MB, qr, door, floors, THREE, hemi, mainLight, auto, audio }; },
   ready: false
 };
-build().then(() => { window.ROOM.ready = true; }).catch(e => { console.error(e); $('startSub').textContent = '起動に失敗しました'; });
+build().then(() => { window.ROOM.ready = true; $('bar').style.width = '0'; $('startBtn').classList.remove('wait'); $('startSub').textContent = '入室する'; }).catch(e => { console.error(e); $('startSub').textContent = '起動に失敗しました'; });
