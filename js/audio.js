@@ -60,6 +60,11 @@ export function createAudio() {
       if (!api._sh) { const g = ctx.createGain(); g.gain.value = 0; g.connect(se); for (const [f, q, gn] of [[5200, .6, .5], [2100, .8, .32], [700, .7, .16]]) { const s = ctx.createBufferSource(), bf = ctx.createBiquadFilter(), gg = ctx.createGain(); s.buffer = noise; s.loop = true; bf.type = 'bandpass'; bf.frequency.value = f; bf.Q.value = q; gg.gain.value = gn; s.connect(bf).connect(gg).connect(g); s.start(0, Math.random()); } api._sh = g; }
       api._sh.gain.setTargetAtTime(v ? .2 : 0, ctx.currentTime, v ? .25 : .5);
     },
+    // ブリーフィング：文字送りの粒、図の切り替え、開く、決定
+    uiTick(k) { if (!ctx || !on) return; const t = ctx.currentTime; tone('square', k ? 1760 : 2400 + Math.random() * 500, t, .001, k ? .05 : .018, k ? .035 : .012, se); },
+    uiSlide() { if (!ctx || !on) return; const t = ctx.currentTime; burst(t, .22, 1800, .8, .1, se, 5200); tone('sine', 660, t + .12, .005, .35, .05, se); },
+    uiOpen() { if (!ctx || !on) return; const t = ctx.currentTime; burst(t, .5, 500, .7, .12, se, 3600); tone('sine', 220, t, .02, .6, .1, se, 440); tone('sine', 1320, t + .35, .01, .8, .05, se); },
+    uiSelect() { if (!ctx || !on) return; const t = ctx.currentTime; tone('square', 990, t, .003, .06, .05, se); tone('square', 1485, t + .07, .003, .12, .05, se); },
     listener() { },
   };
   return api;

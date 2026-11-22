@@ -10,6 +10,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { createAudio } from './audio.js';
+import { createBriefing } from './brief.js';
 const audio = createAudio();
 
 let DEBUG = location.hash === '#debug';
@@ -720,6 +721,7 @@ function buildPad() {
 function updatePad(dt) {
   const d = Math.hypot(player.x - PAD.x, player.z - PAD.z);
   if (pad.force) { }
+  else if (state === 'brief') { pad.on = false; }
   else if (!pad.on && d < 1.2 && state === 'play') { pad.on = true; pad.t = 0; audio.activate(); toast('LINK ESTABLISHED'); }
   else if (pad.on && d > 1.95) { pad.on = false; audio.deactivate(); }
   if (!pad.force) pad.t += dt; pad.a += ((pad.on ? 1 : 0) - pad.a) * (1 - Math.exp(-dt * (pad.on ? 22 : 7)));
@@ -832,7 +834,7 @@ function buildQuarters() {
   plane(holoGroup, 1.5, .63, 0, 0, 0, dotMat(term, 256, 108, { gain: 1.25, bg: .02 })).userData.wall = [gw, dx, 1.34, .26];
   rbox(gw, .48, .07, .48, dx, .47, 1.36, S.fabricDark, .03); rbox(gw, .46, .5, .07, dx, .8, 1.62, S.fabricDark, .03); cyl(gw, .03, .03, .42, dx, .24, 1.38, S.dark, 12); cyl(gw, .24, .26, .04, dx, .03, 1.38, S.dark, 24);
   addRect(BX0, BCZ - dx - 1.17, BX0 + .82, BCZ - dx + 1.17); circles.push({ x: BX0 + 1.4, z: BCZ - dx, r: .3 });
-  interactables.push({ pos: new THREE.Vector3(BX0 + .6, 0, BCZ - dx), r: 2.0, label: () => '照明を切り替える ― ' + MODES[(qr.mode + 1) % 2].jp, act: () => { setMode((qr.mode + 1) % 2); audio.click(); toast('LIGHT : ' + MODES[qr.mode].n); } });
+  interactables.push({ pos: new THREE.Vector3(BX0 + .6, 0, BCZ - dx), r: 2.0, label: () => '端末を開く', act: () => { audio.click(); openBrief('screen', 'menu'); } });
 
   // ---- 収納（北の壁）と、縦の光
   for (let i = 0; i < 4; i++) { const lx = -2.1 + i * .8; rbox(gn, .78, 2.3, .5, lx, 1.17, .25, S.light, .04); box(gn, .03, .34, .025, lx + .27, 1.18, .512, S.accent, false); }
@@ -1243,6 +1245,11 @@ function updatePlayer(dt) {
   }
   const l = Math.hypot(fx, fz); if (l > 1) { fx /= l; fz /= l; }
   const ke = 1 - Math.exp(-dt * 6);
+  if (state === 'brief' && brief.mode === 'holo') {                 // ホログラムの正面へ寄せて、視点を固定する
+    const c = brief.cam, yw = Math.atan2(Math.sin(player.yaw - c.yaw), Math.cos(player.yaw - c.yaw)) + c.yaw; player.yaw = yw + (c.yaw - yw) * ke; player.pitch += (0 - player.pitch) * ke;
+    player.x += (c.x - player.x) * ke; player.z += (c.z - player.z) * ke; player.eye += (c.y - player.eye) * ke; player.vx = player.vz = 0;
+    camera.position.set(player.x, player.eye, player.z); camera.rotation.set(player.pitch + Math.sin(time * .35) * .004, player.yaw + Math.sin(time * .27) * .012, 0); return;
+  }
   if (player.seat) {
     if (l > .6) stand();
     else { const s = player.seat; player.x += (s.x - player.x) * ke; player.z += (s.z - player.z) * ke; player.eye += (s.eye - player.eye) * ke; camera.position.set(player.x, player.eye + Math.sin(time * 1.1) * .004, player.z); camera.rotation.set(player.pitch, player.yaw, 0); return; }
@@ -1278,6 +1285,13 @@ function updateFocus() {
   p.classList.toggle('on', on); $('actBtn').classList.toggle('on', on && COARSE);
 }
 function interact() { if (state === 'play' && focus) focus.act(); }
+let brief = null;
+function openBrief(mode, name) {
+  if (state !== 'play' || !brief) return; state = 'brief'; keys.clear(); stick.x = stick.y = 0; stick.id = -1; lookT.id = -1; $('stick').style.display = 'none'; $('hud').classList.add('brief'); player.seat = null;
+  if (mode === 'holo') { brief.cam.x = PAD.x; brief.cam.z = PAD.z + .95; brief.cam.yaw = 0; }
+  if (document.pointerLockElement) document.exitPointerLock();
+  brief.open(mode, name);
+}
 const accTarget = new THREE.Color(...ACCENTS[0].c);
 function setAccent(i) { accent = i; accTarget.setRGB(...ACCENTS[i].c); }
 
@@ -1307,6 +1321,12 @@ async function build() {
   // 壁のグループのローカル座標で置いたホログラムを、ワールドに直す
   holoGroup.updateMatrixWorld(true);
   for (const o of [...holoGroup.children]) { const w = o.userData.wall; if (!w) continue; const [g, x, y, z] = w; o.position.set(x, y, z).applyMatrix4(g.matrixWorld); o.quaternion.copy(g.quaternion); }
+  // ブリーフィングと端末メニュー（机＝全画面、パッド＝空間のホログラム）
+  brief = createBriefing({ audio, parent: holoGroup, camera, coarse: COARSE,
+    lightLabel: () => MODES[(qr.mode + 1) % 2].jp, onLight: () => { setMode((qr.mode + 1) % 2); briefLive = time + 2; toast('LIGHT : ' + MODES[qr.mode].n); },
+    onClose: () => { state = 'play'; $('hud').classList.remove('brief'); if (!COARSE) lock(); },
+    onEnd: f => { try { if (f) localStorage.setItem('deckc07.brief', f); } catch (e) { } toast(f === 'accepted' ? 'REQUEST ACCEPTED' : f === 'held' ? 'REQUEST ON HOLD' : 'LINK CLOSED'); } });
+  interactables.push({ pos: new THREE.Vector3(PAD.x, 0, PAD.z), r: 1.25, label: () => 'ブリーフィングを開く', act: () => openBrief('holo', 'brief') });
   interactables.push({ pos: consolePos, r: 2.3, label: () => 'アクセント色を切り替える ― ' + ACCENTS[(accent + 1) % ACCENTS.length].n, act: () => { setAccent((accent + 1) % ACCENTS.length); audio.click(); toast('ACCENT : ' + ACCENTS[accent].n); } });
 
   scene.traverse(o => { if ((o.isMesh || o.isInstancedMesh) && o.material.isMeshStandardMaterial) { boxify(o.material); if (o.material.userData.room === 'B' && !bMats.includes(o.material)) bMats.push(o.material); } });
@@ -1326,7 +1346,10 @@ let last = 0, fpsAcc = 0, fpsN = 0;
 function frame(dt) {
   if (state === 'menu') { player.yaw = START.yaw + Math.sin(time * .13) * .22; player.pitch = START.pitch + Math.sin(time * .09) * .02; }
   for (const k of 'AB') for (const l of roomLights[k]) if (l.userData.nom !== undefined) l.intensity = l.userData.nom;
-  updatePlayer(dt); updateFocus(); updatePad(dt); updateDoor(dt); updateQuarters(dt);
+  updatePlayer(dt); updateFocus(); updatePad(dt); updateDoor(dt); updateQuarters(dt); brief.update(dt, time);
+  pad.idle.visible = brief.holoOp < .5;   // ホログラム中は足もとの待機表示を消す（縦長で黒い板の下に見える）
+  // ホログラムの背後は黒で覆うので、その間は AO を外す（AO は画面全体に掛かり、壁の陰の模様がパネルに写る）
+  if (gtao) { const v = 1 - clamp(brief.holoOp * 1.2, 0, 1); gtao.blendMaterial.uniforms.intensity.value = v; }
   // いない側の部屋の光は、扉の開き具合に合わせてゆっくり入れる（急に点くと、こちらの部屋の明るさが跳ねる）
   { const f = sstep(.02, .8, door.open), g = { A: qr.inB ? f : 1, B: qr.inB ? 1 : f }; for (const k of 'AB') for (const l of roomLights[k]) { l.userData.nom = l.intensity; l.intensity *= g[k]; } }
   uTime.value = time % 1000; finalPass.uniforms.time.value = time % 100;
@@ -1337,11 +1360,22 @@ function frame(dt) {
   const dp = Math.hypot(player.x - PED.x, player.z - PED.z); ped.a += ((dp < 3.3 ? 1 : 0) - ped.a) * (1 - Math.exp(-dt * 7)); ped.ring.material.uniforms.op.value = ped.a; ped.ring.visible = ped.a > .004;
   if (toastTimer > 0) { toastTimer -= dt; if (toastTimer <= 0) $('toast').classList.remove('on'); }
   if (shadowDirty) { showRooms(true, true); renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
-  renderer.info.reset(); renderMirror(); composer.render(dt);
+  // 机の全画面：部屋は 1 枚撮って止め、板だけを画面の解像度そのままで描く（自動の解像度低下に巻きこまれず、軽い）
+  if (state === 'brief' && brief.mode === 'screen') {
+    const full = Math.min(window.devicePixelRatio || 1, 2);
+    if (!briefSnap || time < briefLive || renderer.getPixelRatio() !== full) {
+      if (renderer.getPixelRatio() !== full) { renderer.setPixelRatio(full); renderer.setSize(window.innerWidth, window.innerHeight, false); }
+      renderer.info.reset(); renderMirror(); composer.render(dt); brief.snapshot(renderer); briefSnap = true;
+    } else { renderer.setRenderTarget(null); renderer.clear(); }
+    brief.overlay(renderer); return;
+  }
+  if (briefSnap) { briefSnap = false; brief.snapshot(null); buildComposer(); }
+  renderer.info.reset(); renderMirror(); composer.render(dt); brief.overlay(renderer);
 }
+let briefSnap = false, briefLive = 0;
 function tick(now) {
   requestAnimationFrame(tick);
-  const raw = (now - last) / 1000, dt = Math.min(raw, .05); last = now; time = frozen === null ? time + dt : frozen; if (!document.hidden && !cfgOver) autoScale(now);
+  const raw = (now - last) / 1000, dt = Math.min(raw, .05); last = now; time = frozen === null ? time + dt : frozen; if (!document.hidden && !cfgOver && state !== 'brief') autoScale(now); else auto.last = now;
   frame(dt);
   if (DEBUG) { fpsAcc += raw; fpsN++; if (fpsAcc > .5) { $('dbg').textContent = `${(fpsN / fpsAcc).toFixed(0)} fps  ${QUAL[quality].jp} ${bufSize.x}x${bufSize.y} x${auto.scale.toFixed(2)}\nao ${gtao ? 'on' : 'off'}  mir ${mirror.on ? mirror.rt.width + 'x' + mirror.rt.height : 'off'}  calls ${renderer.info.render.calls}  tris ${renderer.info.render.triangles}\nx ${player.x.toFixed(2)} z ${player.z.toFixed(2)} yaw ${player.yaw.toFixed(2)}`; fpsAcc = fpsN = 0; } }
 }
@@ -1353,7 +1387,7 @@ function start() {
   audio.init();
   state = 'play'; $('menu').classList.add('hide'); $('hud').classList.add('on'); if (!start.once) { start.once = true; player.yaw = START.yaw; player.pitch = START.pitch; } lock(); canvas.focus();
 }
-function pause() { state = 'menu'; keys.clear(); stick.x = stick.y = 0; stick.id = -1; lookT.id = -1; $('stick').style.display = 'none'; $('menu').classList.remove('hide'); $('hud').classList.remove('on'); $('startBtn').firstElementChild.textContent = 'RESUME'; $('startSub').textContent = '戻る'; START.yaw = player.yaw; START.pitch = player.pitch; if (document.pointerLockElement) document.exitPointerLock(); }
+function pause() { if (state === 'brief') brief.close(); state = 'menu'; keys.clear(); stick.x = stick.y = 0; stick.id = -1; lookT.id = -1; $('stick').style.display = 'none'; $('menu').classList.remove('hide'); $('hud').classList.remove('on'); $('startBtn').firstElementChild.textContent = 'RESUME'; $('startSub').textContent = '戻る'; START.yaw = player.yaw; START.pitch = player.pitch; if (document.pointerLockElement) document.exitPointerLock(); }
 $('startBtn').addEventListener('click', start);
 $('qualBtn').addEventListener('click', () => { quality = { low: 'mid', mid: 'high', high: 'low' }[quality]; $('qualSub').textContent = QUAL[quality].jp; autoReset(); buildComposer(); });
 $('qualSub').textContent = QUAL[quality].jp;
@@ -1382,6 +1416,7 @@ $('actBtn').addEventListener('pointerdown', e => { e.stopPropagation(); interact
 document.addEventListener('pointerlockchange', () => { const l = document.pointerLockElement === canvas; if (l) hadLock = true; else if (hadLock && state === 'play') pause(); });
 addEventListener('keydown', e => {
   if (e.code === 'F3') { setFps(!DEBUG); e.preventDefault(); return; }
+  if (state === 'brief') { brief.key(e); return; }
   if (e.code === 'Escape') { state === 'play' ? pause() : 0; return; }
   if (state !== 'play') return; keys.add(e.code);
   if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) interact();
@@ -1421,8 +1456,10 @@ window.ROOM = {
   get guard() { return [BOX_OK, bloomGuard]; },
   get state() { return { x: player.x, z: player.z, yaw: player.yaw, state, seated: !!player.seat, door: +door.open.toFixed(2), shower: qr.shower, mode: qr.mode, pad: pad.on, padT: pad.t, accent, audio: audio.ready, prompt: $('prompt').textContent, calls: renderer.info.render.calls, tris: renderer.info.render.triangles, buf: [bufSize.x, bufSize.y] }; },
   walk(tx, tz, n = 400) { for (let i = 0; i < n; i++) { const dx = tx - player.x, dz = tz - player.z, d = Math.hypot(dx, dz); if (d < .03) break; player.x += dx / d * .05; player.z += dz / d * .05; collide(player); } return [+player.x.toFixed(2), +player.z.toFixed(2)]; },
+  brief(mode, name, t = 99) { if (state === 'brief') brief.close(); state = 'play'; openBrief(mode, name); brief.state.t = t; if (mode === 'holo') { player.x = brief.cam.x; player.z = brief.cam.z; player.yaw = 0; player.pitch = 0; player.eye = brief.cam.y; } },
+  briefGo(n = 1, sel = 0) { for (let i = 0; i < n; i++) { const s = brief.state; s.st = 999; if (s.steps[s.i] && s.steps[s.i].ch) brief.choose(sel); else brief.advance(); } const s = brief.state; s.st = 999; s.slideT = Math.max(s.slideT, 9); s.flash = 0; return { i: s.i, slide: s.slide, active: s.active }; },
   shower(v) { setShower(!!v, true); }, mode(i) { setMode(i, true); }, door(v) { door.open = v ? 1 : 0; }, sit(i) { const s = qr.seats[i]; player.seat = s; player.x = s.x; player.z = s.z; player.eye = s.eye; player.yaw = s.yaw; player.pitch = s.pitch; state = 'play'; $('menu').classList.add('hide'); $('hud').classList.add('on'); },
-  get dev() { return { scene, renderer, composer, bloom, mirror, pad, ped, M, MB, qr, door, floors, THREE, hemi, mainLight, auto, audio }; },
+  get dev() { return { scene, renderer, composer, bloom, mirror, pad, ped, M, MB, qr, door, floors, THREE, hemi, mainLight, auto, audio, brief }; },
   ready: false
 };
 build().then(() => { window.ROOM.ready = true; $('bar').style.width = '0'; $('startBtn').classList.remove('wait'); $('startSub').textContent = '入室する'; }).catch(e => { console.error(e); $('startSub').textContent = '起動に失敗しました'; });

@@ -61,9 +61,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .only-touch{display:none}
 @media (pointer:coarse){.only-touch{display:block}.only-mouse{display:none}}
 
+/* ---- briefing ---- */
+#brief{position:fixed;inset:0;display:none;touch-action:none;cursor:pointer}
+#brief.on{display:block}
+#brief.screen{background:rgba(3,5,9,.9)}
+#brief canvas{position:absolute}
+#brief.holo #bB,#brief.holo #bP{display:none}
+
 /* ---- hud ---- */
 #hud{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .4s}
 #hud.on{opacity:1}
+#hud.brief #dot{display:none}
 #dot{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:rgba(255,255,255,.55)}
 #prompt{position:absolute;left:50%;top:63%;transform:translateX(-50%);white-space:nowrap;
   font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:13px;letter-spacing:.14em;
@@ -102,6 +110,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div id="stick"><i></i></div>
   <div id="dbg"></div>
 </div>
+
+<div id="brief"><canvas id="bB"></canvas><canvas id="bP"></canvas><canvas id="bO"></canvas></div>
 
 <div id="menu">
   <div class="panel">
