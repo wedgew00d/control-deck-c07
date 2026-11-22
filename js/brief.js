@@ -80,15 +80,15 @@ const SLIDES = {
       c.fillStyle = INK; sp(c, 'KESTREL-9', B[0] + 28, B[1] - 6, 22, 4); c.fillStyle = DIM; sp(c, '採掘プラットフォーム ／ 放棄', B[0] + 28, B[1] + 16, 14, 2, 'left', 500, FJ); c.globalAlpha = 1; }
     if (t > 2) { c.globalAlpha = clamp((t - 2) * 3); c.strokeStyle = DIM; c.lineWidth = 1.5; box(c, 660, 420, 280, 116); [['ΔV', '412 m/s'], ['ETA', '06:40:00'], ['WINDOW', 'OPEN — 02:15']].forEach(([a2, b2], i) => { c.fillStyle = DIM; sp(c, a2, 680, 452 + i * 30, 15, 3); c.fillStyle = i === 2 ? ACC : INK; sp(c, b2, 780, 452 + i * 30, 19, 2); }); c.globalAlpha = 1; }
   },
-  target(c, t) {                                   // 明るい紙の上の図面
-    c.fillStyle = PAPER; c.globalAlpha = .93 * ease(t * 3); c.fillRect(0, 0, 1000, 600); c.globalAlpha = 1; c.strokeStyle = 'rgba(27,36,51,.1)'; c.lineWidth = 1; for (let x = 0; x < 1000; x += 25) ln(c, x, 0, x, 600); for (let y = 0; y < 600; y += 25) ln(c, 0, y, 1000, y);
-    c.fillStyle = PINK; sp(c, ty('KESTREL-9 ／ STRUCTURE', t - .1, 30), 46, 60, 22, 5, 'left', 700); c.fillStyle = 'rgba(27,36,51,.6)'; sp(c, 'SECTION A-A  ·  NOT TO SCALE', 46, 84, 14, 3);
-    c.strokeStyle = PINK; c.lineWidth = 2.5; const P = (i, n = .12) => ease((t - .3 - i * n) * 2.2);
+  target(c, t) {                                   // 黒地に光る線の図面
+    c.fillStyle = 'rgba(120,150,210,.05)'; c.globalAlpha = ease(t * 3); c.fillRect(0, 0, 1000, 600); c.globalAlpha = 1; c.strokeStyle = 'rgba(150,170,200,.09)'; c.lineWidth = 1; for (let x = 0; x < 1000; x += 25) ln(c, x, 0, x, 600); for (let y = 0; y < 600; y += 25) ln(c, 0, y, 1000, y);
+    c.fillStyle = INK; sp(c, ty('KESTREL-9 ／ STRUCTURE', t - .1, 30), 46, 60, 22, 5, 'left', 700); c.fillStyle = DIM; sp(c, 'SECTION A-A  ·  NOT TO SCALE', 46, 84, 14, 3);
+    c.strokeStyle = INK; c.lineWidth = 2.5; const P = (i, n = .12) => ease((t - .3 - i * n) * 2.2);
     box(c, 380, 230, 240, 150, P(0)); box(c, 420, 190, 160, 40, P(1)); ln(c, 380, 305, 150, 305, P(2)); ln(c, 620, 305, 860, 305, P(2)); c.lineWidth = 1.5; for (let i = 0; i < 9; i++) { const x = 160 + i * 25, x2 = 630 + i * 25; ln(c, x, 290, x + 25, 320, P(3)); ln(c, x, 320, x + 25, 290, P(3)); ln(c, x2, 290, x2 + 25, 320, P(3)); ln(c, x2, 320, x2 + 25, 290, P(3)); } ln(c, 150, 290, 380, 290, P(3)); ln(c, 150, 320, 380, 320, P(3)); ln(c, 620, 290, 860, 290, P(3)); ln(c, 620, 320, 860, 320, P(3));
     c.lineWidth = 2.5; for (const [x, y, r] of [[150, 305, 46], [860, 305, 46], [500, 440, 42]]) { c.beginPath(); c.arc(x, y, r, 0, TAU * P(4)); c.stroke(); c.lineWidth = 1; c.beginPath(); c.arc(x, y, r * .6, 0, TAU * P(5)); c.stroke(); c.lineWidth = 2.5; } ln(c, 500, 380, 500, 398, P(4));
     c.beginPath(); c.arc(500, 150, 60, Math.PI * 1.15, Math.PI * (1.15 + .7 * P(5))); c.stroke(); ln(c, 500, 190, 500, 150, P(5)); c.lineWidth = 1; for (let i = 0; i < 5; i++) box(c, 392 + i * 45, 244, 36, 50, P(6)); for (let i = 0; i < 3; i++) box(c, 392 + i * 76, 310, 66, 56, P(6));
-    if (t > 1.5) { const a = clamp((t - 1.5) * 3); c.globalAlpha = a; c.fillStyle = 'rgba(226,73,61,.32)'; c.fillRect(544, 310, 66, 56); c.strokeStyle = RED; c.lineWidth = 2.5; c.strokeRect(544, 310, 66, 56); ln(c, 610, 366, 700, 452, ease((t - 1.6) * 3)); ln(c, 700, 452, 930, 452, ease((t - 1.8) * 3)); c.fillStyle = RED; sp(c, 'VAULT 3', 706, 440, 22, 4, 'left', 700); c.fillStyle = PINK; sp(c, '試料 12-B', 706, 480, 20, 2, 'left', 700, FJ); c.fillStyle = 'rgba(27,36,51,.6)'; sp(c, 'CRYO HOLD  ·  SEALED', 706, 502, 13, 3); c.globalAlpha = 1; }
-    if (t > 1) { c.fillStyle = 'rgba(27,36,51,.6)'; sp(c, 'DOCK 01', 110, 376, 13, 3); sp(c, 'DOCK 02', 820, 376, 13, 3); sp(c, 'REACTOR', 466, 506, 13, 3); sp(c, 'COMM', 574, 128, 13, 3); c.strokeStyle = 'rgba(27,36,51,.5)'; c.lineWidth = 1; ln(c, 150, 540, 860, 540); ln(c, 150, 532, 150, 548); ln(c, 860, 532, 860, 548); sp(c, '184 m', 505, 562, 14, 3, 'center'); }
+    if (t > 1.5) { const a = clamp((t - 1.5) * 3); c.globalAlpha = a; c.fillStyle = 'rgba(226,73,61,.32)'; c.fillRect(544, 310, 66, 56); c.strokeStyle = RED; c.lineWidth = 2.5; c.strokeRect(544, 310, 66, 56); ln(c, 610, 366, 700, 452, ease((t - 1.6) * 3)); ln(c, 700, 452, 930, 452, ease((t - 1.8) * 3)); c.fillStyle = RED; sp(c, 'VAULT 3', 706, 440, 22, 4, 'left', 700); c.fillStyle = INK; sp(c, '試料 12-B', 706, 480, 20, 2, 'left', 700, FJ); c.fillStyle = DIM; sp(c, 'CRYO HOLD  ·  SEALED', 706, 502, 13, 3); c.globalAlpha = 1; }
+    if (t > 1) { c.fillStyle = DIM; sp(c, 'DOCK 01', 110, 376, 13, 3); sp(c, 'DOCK 02', 820, 376, 13, 3); sp(c, 'REACTOR', 466, 506, 13, 3); sp(c, 'COMM', 574, 128, 13, 3); c.strokeStyle = 'rgba(180,198,226,.5)'; c.lineWidth = 1; ln(c, 150, 540, 860, 540); ln(c, 150, 532, 150, 548); ln(c, 860, 532, 860, 548); sp(c, '184 m', 505, 562, 14, 3, 'center'); }
   },
   threat(c, t, T) {
     c.fillStyle = 'rgba(70,10,8,.34)'; c.globalAlpha = ease(t * 3); c.fillRect(0, 0, 1000, 600); c.globalAlpha = 1; c.fillStyle = RED; c.fillRect(60, 48, 12, 12); sp(c, ty('HOSTILE ESTIMATE', t, 30), 84, 62, 24, 7); c.strokeStyle = 'rgba(226,73,61,.6)'; c.lineWidth = 1.5; ln(c, 60, 84, 940, 84, ease(t * 2));
@@ -138,7 +138,7 @@ const SCRIPTS = {
     { l: 'no', sp: 'NOC', tx: 'いいわ。待つのは得意よ。回線は、開けておくから。', end: true },
   ],
   menu: [
-    { l: 'm', sp: 'SYS', sl: 'menu', tx: '個人端末 C-08-D。操作を選択してください。', ch: [{ t: 'ブリーフィングを再生', act: 'brief' }, { t: o => '照明を切り替える ― ' + o.lightLabel(), act: 'light' }, { t: '閉じる', act: 'close' }] },
+    { l: 'm', sp: 'SYS', sl: 'menu', tx: '個人端末 C-08-D。操作を選択してください。', ch: [{ t: 'ブリーフィングを再生', act: 'brief' }, { t: o => '照明を切り替える ― ' + o.lightLabel(), act: 'light' }, { t: o => '配色を切り替える ― ' + o.toneLabel(), act: 'tone' }, { t: '閉じる', act: 'close' }] },
   ],
 };
 const BOOT = { brief: 2.7, menu: .45 };
@@ -167,14 +167,23 @@ export function createBriefing(opt) {
   // ---- 空間に浮かべる板（holo）。起動時に作っておき、開くたびに配置だけ直す
   const tex = { B: new THREE.CanvasTexture(cv.B), P: new THREE.CanvasTexture(cv.P) }; for (const k in tex) { tex[k].colorSpace = THREE.SRGBColorSpace; tex[k].generateMipmaps = false; tex[k].premultiplyAlpha = true;   // 加算で重ねるので、半透明の色は不透明度を掛けた値で受け取る
     tex[k].minFilter = tex[k].magFilter = THREE.LinearFilter; }
-  const uT = { value: 0 }, uOp = { value: 0 }, uFlat = { value: 0 }, oScene = new THREE.Scene(), oCam = new THREE.PerspectiveCamera(), group = new THREE.Group(); group.visible = false; parent.add(group);
-  const holoMat = (map, gain) => new THREE.ShaderMaterial({ uniforms: { isFlat: uFlat, map: { value: map }, uvr: { value: new THREE.Vector4(0, 0, 1, 1) }, time: uT, op: uOp, gain: { value: gain }, rows: { value: 300 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+  const uT = { value: 0 }, uOp = { value: 0 }, uFlat = { value: 0 }, uGl = { value: 0 }, uWarn = { value: 0 }, uTone = { value: 1 },   // 配色。1＝青緑（初期値）、0＝標準
+     oScene = new THREE.Scene(), oCam = new THREE.PerspectiveCamera(), group = new THREE.Group(); group.visible = false; parent.add(group);
+  const holoMat = (map, gain, glAmt) => new THREE.ShaderMaterial({ uniforms: { gl: uGl, glAmt: { value: glAmt }, warn: uWarn, tone: uTone, isFlat: uFlat, map: { value: map }, uvr: { value: new THREE.Vector4(0, 0, 1, 1) }, time: uT, op: uOp, gain: { value: gain }, rows: { value: 300 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
     vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-    fragmentShader: `uniform sampler2D map; uniform vec4 uvr; uniform float time, op, gain, rows, isFlat; varying vec2 vUv;
-      void main(){ vec2 uv=uvr.xy+vUv*uvr.zw;
-        if(isFlat>.5){ vec4 t=texture2D(map,uv); vec3 col=t.a>0.001?t.rgb/t.a:vec3(0.); col=pow(col,vec3(1./2.2)); gl_FragColor=vec4(col*t.a,t.a)*op; return; }   // 後処理の後に直接描くので、色の変換は自前で
-        float ca=.0009; vec3 c=vec3(texture2D(map,uv+vec2(ca,0.)).r,texture2D(map,uv).g,texture2D(map,uv-vec2(ca,0.)).b);
-        float scan=.88+.12*sin(vUv.y*rows*6.2831853); float fl=.95+.05*sin(time*37.)*sin(time*5.3);
+    fragmentShader: `uniform sampler2D map; uniform vec4 uvr; uniform float time, op, gain, rows, isFlat, gl, glAmt, warn, tone; varying vec2 vUv;
+      float h1(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      void main(){ vec2 uv=uvr.xy+vUv*uvr.zw; float g=gl*glAmt, ca=mix(.0009,0.,isFlat), tq=floor(time*24.);
+        // 図の切り替え：横の帯ごとに左右へずらし、色をずらす
+        if(g>.001){ float row=floor(vUv.y*14.+h1(vec2(tq,3.))*14.); uv.x+=(h1(vec2(row,tq))-.5)*.22*g*step(.5,h1(vec2(row+7.,tq)))*uvr.z; ca+=.012*g*uvr.z; }
+        vec4 t=texture2D(map,uv), tr=texture2D(map,uv+vec2(ca,0.)), tb=texture2D(map,uv-vec2(ca,0.)); t=vec4(tr.r,t.g,tb.b,max(t.a,max(tr.a,tb.a)));   // 色をずらした分の不透明度も拾う（拾わないと緑だけ残る）
+        if(g>.001){ float bar=step(.93,h1(vec2(floor(vUv.y*40.),tq+5.)))*g; t+=vec4(.25)*bar; }
+        // 警告の場面：暗い色と色つきは赤へ、明るい白だけ残す（赤と白の2色）
+        float lum=max(t.r,max(t.g,t.b)), sat=lum>.001?(lum-min(t.r,min(t.g,t.b)))/lum:0., keep=smoothstep(.7,.92,lum)*(1.-sat);
+        t.rgb=mix(t.rgb,mix(vec3(.16,.95,.84)*lum,t.rgb,keep),tone);                     // 配色「青緑」：同じ考え方で青緑と白の2色に
+        t.rgb=mix(t.rgb,mix(vec3(1.,.17,.14)*lum,t.rgb,keep),warn);
+        if(isFlat>.5){ vec3 col=t.a>.001?t.rgb/t.a:vec3(0.); col=pow(min(col,vec3(1.)),vec3(1./2.2)); gl_FragColor=vec4(col*t.a,t.a)*op; return; }   // 後処理の後に直接描くので、色の変換は自前で
+        vec3 c=t.rgb; float scan=.88+.12*sin(vUv.y*rows*6.2831853); float fl=.95+.05*sin(time*37.)*sin(time*5.3);
         float roll=1.+.25*exp(-pow((fract(vUv.y-time*.11)-.5)/.02,2.));                                  // ゆっくり下る走査の帯
         float ed=min(min(vUv.x,1.-vUv.x),min(vUv.y,1.-vUv.y)); float soft=smoothstep(0.,.006,ed);
         gl_FragColor=vec4(c*gain*scan*fl*roll*soft*op,1.); }` });
@@ -183,19 +192,39 @@ export function createBriefing(opt) {
   snapQ.frustumCulled = false; snapQ.renderOrder = -1; snapQ.visible = false; oScene.add(snapQ);
   const geo = new THREE.PlaneGeometry(1, 1), M3 = {};
   const back = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x020408, transparent: true, opacity: 0, depthWrite: false })); back.renderOrder = 5; group.add(back);      // 部屋のほかのホログラムより後に描いて、覆い隠す
-  for (const [k, t, gn] of [['bg', 'B', 1.2], ['em', 'P', 1.4], ['list', 'P', 1.4], ['main', 'P', 1.25], ['th0', 'P', 1.0], ['th1', 'P', 1.0], ['th2', 'P', 1.0]]) { M3[k] = new THREE.Mesh(geo, holoMat(tex[t], gn)); M3[k].frustumCulled = false; M3[k].renderOrder = 6; group.add(M3[k]); }
+  // 背景：細かい粒がゆっくり流れ、半透明の小さい四角が明滅する。板より奥、黒い板より手前
+  const dust = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms: { time: uT, op: uOp, isFlat: uFlat, warn: uWarn, tone: uTone }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+    fragmentShader: `uniform float time, op, isFlat, warn, tone; varying vec2 vUv;
+      float h1(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float pts(vec2 p, float cell, float r, float dens, float sp){ p.x+=time*sp; vec2 g=floor(p/cell), f=fract(p/cell); float h=h1(g); if(h>dens) return 0.;
+        vec2 o=vec2(h1(g+3.1),h1(g+7.7))*.8+.1; float d=length((f-o)*cell); return smoothstep(r,r*.3,d)*(.35+.65*sin(time*(.6+h*30.)+h*90.)*.5+.5*.65); }
+      void main(){ vec2 p=(vUv-.5)*vec2(14.,7.); float v=0.;
+        v+=pts(p,.11,.0075,.34,.020)*.55; v+=pts(p+3.7,.07,.005,.26,-.012)*.4; v+=pts(p*vec2(1.,1.)+9.1,.19,.011,.18,.035)*.7;
+        // 四角：粗い格子のうち少数だけ。ゆっくり明滅し、縁だけ少し明るい
+        vec2 g=floor(p/.34), f=fract(p/.34)-.5; float h=h1(g+11.); float sz=.18+.3*h1(g+5.); float bx=max(abs(f.x),abs(f.y));
+        float on=step(.9,h)*step(bx,sz); float edge=smoothstep(sz-.03,sz,bx); float bl=.5+.5*sin(time*(.35+h1(g+2.)*.9)+h*60.);
+        float sq=on*(.035+.06*edge)*bl*bl;
+        float band=exp(-pow((p.y+.15)/.5,2.))*.018;                                    // 横に伸びる、ごく薄い光の帯
+        float vig=smoothstep(7.2,2.5,abs(p.x))*smoothstep(3.6,1.2,abs(p.y));
+        vec3 col=mix(mix(vec3(.62,.74,.95),vec3(.25,.95,.85),tone),vec3(1.,.2,.17),warn)*(v*.5+sq+band*(1.+warn*2.))*vig*op*mix(.7,1.,isFlat);
+        gl_FragColor=vec4(col,1.); }` }));
+  dust.renderOrder = 5.5; dust.frustumCulled = false; group.add(dust);
+  for (const [k, t, gn, ga] of [['bg', 'B', 1.2, .5], ['em', 'P', 1.4, .4], ['list', 'P', 1.4, .4], ['main', 'P', 1.25, 1], ['th0', 'P', 1.0, .6], ['th1', 'P', 1.0, .6], ['th2', 'P', 1.0, .6]]) { M3[k] = new THREE.Mesh(geo, holoMat(tex[t], gn, ga)); M3[k].frustumCulled = false; M3[k].renderOrder = 6; group.add(M3[k]); }
   const cam = { x: 0, z: 0, y: 1.55, yaw: 0 };
   function place(cam) {
     for (const k in tex) tex[k].dispose();
     const D = 2.25, vh = 2 * D * Math.tan(camera.fov * Math.PI / 360), vw = vh * camera.aspect, k = Math.min(vw * .95 / S.LW, vh * .84 / S.LH), cx = cam.x, cz = cam.z - D, cy = cam.y + vh * .03;
-    const put = (m, r0, dz, ry) => { const pm = m === M3.bg ? 0 : 18, r = [r0[0] - pm, r0[1] - pm, r0[2] + pm * 2, r0[3] + pm * 2];   // 枠の外に出る角の飾りと見出しの分だけ広げる
+    const put = (m, r0, dz, ry, pt = 18, pb = 18) => { const pm = m === M3.bg ? 0 : 18; if (!pm) pt = pb = 0; const r = [r0[0] - pm, r0[1] - pt, r0[2] + pm * 2, r0[3] + pt + pb];   // 枠の外に出る角の飾りと見出しの分だけ広げる
       m.scale.set(r[2] * k, r[3] * k, 1); m.position.set(cx + (r[0] + r[2] / 2 - S.LW / 2) * k, cy + (S.LH / 2 - r[1] - r[3] / 2) * k, cz + dz); m.rotation.y = ry; m.material.uniforms.uvr.value.set(r[0] / S.LW, 1 - (r[1] + r[3]) / S.LH, r[2] / S.LW, r[3] / S.LH); m.material.uniforms.rows.value = r[3] / 3; };
-    put(M3.bg, [0, 0, S.LW, S.LH], -.12, 0); put(M3.main, L.main, 0, 0); const side = S.portrait ? 0 : .2;
-    put(M3.em, L.em, .16, side); put(M3.list, L.list, .16, S.portrait ? 0 : side); L.th.forEach((r, i) => put(M3['th' + i], r, .16, -side));
-    back.scale.set(14, 7, 1); back.position.set(cx, cam.y + .25, cz - .4);
+    put(M3.bg, [0, 0, S.LW, S.LH], -.12, 0); put(M3.main, L.main, 0, 0, 34); const side = S.portrait ? 0 : .2;
+    put(M3.em, L.em, .16, side, 28, S.portrait ? 8 : 18); put(M3.list, L.list, .16, S.portrait ? 0 : side, S.portrait ? 28 : 18, S.portrait ? 8 : 28); L.th.forEach((r, i) => put(M3['th' + i], r, .16, -side, i ? 18 : 28));
+    dust.scale.copy(back.scale.set(14, 7, 1)); dust.position.set(cx, cam.y + .25, cz - .3);
+    back.position.set(cx, cam.y + .25, cz - .4);
   }
 
   // ---- 進行
+  opt.toneLabel = () => uTone.value ? '青緑' : '標準';
   const cur = () => S.steps[S.i];
   function enter(i) {
     S.i = i; S.st = 0; S.sel = 0; S.typed = 0; const s = cur(); if (!s) return finish();
@@ -208,7 +237,7 @@ export function createBriefing(opt) {
   function advance() { if (!S.active || S.t < BOOT[S.name]) { if (S.active) S.t = BOOT[S.name]; return; } const s = cur(); if (!s) return; if (typing()) { S.st = 999; return; } if (s.ch) return; audio.uiTick && audio.uiTick(1); next(); }
   function choose(k) {
     const s = cur(); if (!s || !s.ch || typing()) return; const c = s.ch[k]; if (!c) return; audio.uiSelect && audio.uiSelect(); if (c.set) { S.flags.answer = c.set; }
-    if (c.act === 'close') return close(); if (c.act === 'brief') return start('brief'); if (c.act === 'light') { opt.onLight(); return; }
+    if (c.act === 'close') return close(); if (c.act === 'brief') return start('brief'); if (c.act === 'light') { opt.onLight(); return; } if (c.act === 'tone') { uTone.value = uTone.value ? 0 : 1; return; }
     const j = S.steps.findIndex(x => x.l === c.go); enter(j < 0 ? S.i + 1 : j);
   }
   function finish() { const f = S.flags.answer; close(); if (S.name === 'brief' && opt.onEnd) opt.onEnd(f); }
@@ -228,7 +257,15 @@ export function createBriefing(opt) {
   el.addEventListener('pointermove', e => { if (!S.active || e.pointerType === 'touch') return; const [x, y] = toLogical(e); for (const h of S.hits) if (x > h[0] && x < h[0] + h[2] && y > h[1] && y < h[1] + h[3]) S.sel = h[4]; });
 
   // ---- 描画
-  function panel(c, r, a, title) { const scr = S.mode === 'screen'; c.globalAlpha = a; c.fillStyle = scr ? 'rgba(150,175,220,.045)' : FILL; c.fillRect(r[0], r[1], r[2], r[3]); c.strokeStyle = scr ? 'rgba(180,198,226,.32)' : 'rgba(180,198,226,.6)'; c.lineWidth = scr ? 1 : 1.5; c.strokeRect(r[0] + .5, r[1] + .5, r[2] - 1, r[3] - 1); c.strokeStyle = INK; c.lineWidth = 2; corners(c, r[0] - 6, r[1] - 6, r[2] + 12, r[3] + 12, 12); if (title) { c.fillStyle = DIM; sp(c, title, r[0] + 2, r[1] - 14, 12, 3); } c.globalAlpha = 1; }
+  // 板の縁から折れ線を引き出して、見出しを板の外に置く。side は tl / tr / bl、p は 0→1 で線が伸びて字が出る
+  function leader(c, r, text, side, p, big) {
+    if (p <= 0) return; const top = side[0] === 't', left = side[1] === 'l', d = big ? 14 : 10, px = big ? 13 : 11, tw = text.length * (px * .6 + 3) + 8, sx = left ? 1 : -1, sy = top ? -1 : 1;
+    const x0 = left ? r[0] + 22 : r[0] + r[2] - 22, y0 = top ? r[1] : r[1] + r[3], x1 = x0 + sx * d, y1 = y0 + sy * d, x2 = x1 + sx * (tw + 12), p1 = clamp(p * 3), p2 = clamp(p * 1.6 - .5);
+    c.globalAlpha = 1; c.strokeStyle = 'rgba(211,220,234,.8)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + (x1 - x0) * p1, y0 + (y1 - y0) * p1); if (p2 > 0) c.lineTo(x1 + (x2 - x1) * p2, y1); c.stroke();
+    c.fillStyle = ACC; c.fillRect(x0 - 2.5, y0 - 2.5, 5, 5); if (p2 >= 1) { c.fillStyle = INK; c.fillRect(x2 - 1.5, y1 - 4, 3, 8); }
+    c.globalAlpha = clamp(p * 2.5 - 1.2); c.fillStyle = INK; sp(c, text, x1 + sx * 6, top ? y1 - 5 : y1 + px + 3, px, 3, left ? 'left' : 'right', 600);
+  }
+  function panel(c, r, a, title, side, lp, big) { const scr = S.mode === 'screen'; c.globalAlpha = a; c.fillStyle = scr ? 'rgba(150,175,220,.045)' : FILL; c.fillRect(r[0], r[1], r[2], r[3]); c.strokeStyle = scr ? 'rgba(180,198,226,.32)' : 'rgba(180,198,226,.6)'; c.lineWidth = scr ? 1 : 1.5; c.strokeRect(r[0] + .5, r[1] + .5, r[2] - 1, r[3] - 1); c.strokeStyle = INK; c.lineWidth = 2; corners(c, r[0] - 6, r[1] - 6, r[2] + 12, r[3] + 12, 12); if (title) leader(c, r, title, side || 'tl', lp === undefined ? a : lp, big); c.globalAlpha = 1; }
   function drawB(c) {
     const W = S.LW, H = S.LH, bt = BOOT[S.name], t = S.t; c.clearRect(0, 0, W, H);
     // 枠線と目盛り（常時）
@@ -248,14 +285,14 @@ export function createBriefing(opt) {
     // 話者の紋章と、声の波形
     panel(c, L.em, pa, 'SPEAKER'); c.globalAlpha = pa; emblem(c, who, L.em[0] + 88, L.em[1] + L.em[3] / 2 - 4, 56); c.fillStyle = INK; for (let i = 0; i < 9; i++) { const v = (.1 + .9 * S.voice) * Math.abs(Math.sin(S.time * (7 + i) + i * 2.1)), hh = 6 + v * 70; c.fillRect(L.em[0] + 168 + i * 8, L.em[1] + L.em[3] / 2 - hh / 2, 4, hh); } c.fillStyle = DIM; sp(c, WHO[who].en, L.em[0] + 12, L.em[1] + L.em[3] - 12, 14, 3); c.globalAlpha = 1;
     // 参加者の一覧（今の話者を強調）
-    panel(c, L.list, pa, 'CHANNEL'); c.globalAlpha = pa; const names = S.name === 'brief' ? ['SYS', S.i < 3 ? 'UNK' : 'NOC', 'YOU'] : ['SYS', 'YOU']; names.forEach((n, i) => { const cols = S.portrait ? 3 : 1, rw = (L.list[2] - 24) / cols, x = L.list[0] + 12 + (S.portrait ? i * rw : 0), y = L.list[1] + 18 + (S.portrait ? 0 : i * 62), on = n === who || (n === 'NOC' && who === 'UNK'); c.fillStyle = on ? 'rgba(211,220,234,.9)' : 'rgba(150,170,200,.14)'; c.fillRect(x, y, rw - 8, 50); c.save(); c.globalCompositeOperation = on ? 'destination-out' : 'source-over'; c.globalAlpha = on ? 1 : pa * .8; emblem(c, n, x + 26, y + 25, 15); c.restore(); c.globalAlpha = pa; c.fillStyle = on ? '#0a0f18' : DIM; sp(c, WHO[n].en, x + 50, y + 31, S.portrait ? 14 : 17, S.portrait ? 1 : 2, 'left', 700); });
+    panel(c, L.list, pa, 'CHANNEL', S.portrait ? 'tl' : 'bl'); c.globalAlpha = pa; const names = S.name === 'brief' ? ['SYS', S.i < 3 ? 'UNK' : 'NOC', 'YOU'] : ['SYS', 'YOU']; names.forEach((n, i) => { const cols = S.portrait ? 3 : 1, rw = (L.list[2] - 24) / cols, x = L.list[0] + 12 + (S.portrait ? i * rw : 0), y = L.list[1] + 18 + (S.portrait ? 0 : i * 62), on = n === who || (n === 'NOC' && who === 'UNK'); c.fillStyle = on ? 'rgba(211,220,234,.9)' : 'rgba(150,170,200,.14)'; c.fillRect(x, y, rw - 8, 50); c.save(); c.globalCompositeOperation = on ? 'destination-out' : 'source-over'; c.globalAlpha = on ? 1 : pa * .8; emblem(c, n, x + 26, y + 25, 15); c.restore(); c.globalAlpha = pa; c.fillStyle = on ? '#0a0f18' : DIM; sp(c, WHO[n].en, x + 50, y + 31, S.portrait ? 14 : 17, S.portrait ? 1 : 2, 'left', 700); });
     if (!S.portrait) { c.fillStyle = DIM; sp(c, 'ENCRYPTION', L.list[0] + 12, L.list[1] + L.list[3] - 44, 12, 3); c.fillStyle = INK; for (let i = 0; i < 18; i++) if (hash(i + Math.floor(S.time * 4)) > .35) c.fillRect(L.list[0] + 12 + i * 12, L.list[1] + L.list[3] - 30, 8, 12); } c.globalAlpha = 1;
     // 中央のパネル
-    const m = L.main; panel(c, m, pa, S.slide ? S.slide.toUpperCase() : ''); c.save(); c.beginPath(); c.rect(m[0], m[1], m[2], m[3]); c.clip(); const k = Math.min(m[2] / 1000, m[3] / 600); c.translate(m[0] + (m[2] - 1000 * k) / 2, m[1] + (m[3] - 600 * k) / 2); c.scale(k, k);
+    const m = L.main; panel(c, m, pa, S.slide ? 'FILE / ' + S.slide.toUpperCase() : '', 'tr', pa < 1 ? 0 : clamp(S.slideT / .45), !S.portrait); c.save(); c.beginPath(); c.rect(m[0], m[1], m[2], m[3]); c.clip(); const k = Math.min(m[2] / 1000, m[3] / 600); c.translate(m[0] + (m[2] - 1000 * k) / 2, m[1] + (m[3] - 600 * k) / 2); c.scale(k, k);
     if (S.slide && S.slideT > 0 && pa >= 1) { try { SLIDES[S.slide](c, S.slideT, S); } catch (e) { } } c.restore();
-    if (S.flash > 0) { c.fillStyle = `rgba(235,242,255,${S.flash * .85})`; c.fillRect(m[0], m[1], m[2], m[3]); }
+    if (S.flash > 0) { c.fillStyle = `rgba(235,242,255,${S.flash * .2})`; c.fillRect(m[0], m[1], m[2], m[3]); }
     // 右：これから出る図
-    const idx = S.order.indexOf(S.slide); L.th.forEach((r, i) => { const id = S.order[idx + 1 + i]; if (!id) return; panel(c, r, pa * (1 - i * .22)); c.globalAlpha = pa * (.85 - i * .22); if (S.mode === 'holo') { c.fillStyle = 'rgba(20,30,50,.9)'; c.fillRect(r[0] + 2, r[1] + 2, r[2] - 4, r[3] - 4); } c.drawImage(thumbs[id], r[0] + 2, r[1] + 2, r[2] - 4, r[3] - 4); c.fillStyle = DIM; sp(c, String(idx + 2 + i).padStart(2, '0'), r[0] + r[2] - 8, r[1] + r[3] - 8, 13, 2, 'right'); c.globalAlpha = 1; });
+    const idx = S.order.indexOf(S.slide); L.th.forEach((r, i) => { const id = S.order[idx + 1 + i]; if (!id) return; panel(c, r, pa * (1 - i * .22), i ? '' : 'NEXT', 'tr'); c.globalAlpha = pa * (.85 - i * .22); if (S.mode === 'holo') { c.fillStyle = 'rgba(20,30,50,.9)'; c.fillRect(r[0] + 2, r[1] + 2, r[2] - 4, r[3] - 4); } c.drawImage(thumbs[id], r[0] + 2, r[1] + 2, r[2] - 4, r[3] - 4); c.fillStyle = DIM; sp(c, String(idx + 2 + i).padStart(2, '0'), r[0] + r[2] - 8, r[1] + r[3] - 8, 13, 2, 'right'); c.globalAlpha = 1; });
   }
   // 字幕の折り返し。行の長さをそろえ、できれば句読点の後ろで切る
   function wrap(c, s, maxW, px) {
@@ -264,22 +301,22 @@ export function createBriefing(opt) {
     out.push(ch.slice(from).join('')); return out;
   }
   function drawO(c) {
-    const q = cv.O.width / S.LW; c.setTransform(q, 0, 0, q, 0, 0); c.clearRect(0, 0, S.LW, S.LH); S.hits = []; if (S.t < BOOT[S.name]) return; const s = cur(); if (!s) return; const W = S.LW, cx = W / 2, px = S.portrait ? 40 : 30, a = clamp((S.t - BOOT[S.name]) * 3);
+    const q = cv.O.width / S.LW; c.setTransform(q, 0, 0, q, 0, 0); c.clearRect(0, 0, S.LW, S.LH); S.hits = []; const AC = uTone.value ? '#3fe6d6' : ACC; if (S.t < BOOT[S.name]) return; const s = cur(); if (!s) return; const W = S.LW, cx = W / 2, px = S.portrait ? 40 : 30, a = clamp((S.t - BOOT[S.name]) * 3);
     // 字幕の下地
     const g2 = c.createLinearGradient(0, L.subY - 90, 0, S.LH); g2.addColorStop(0, 'rgba(2,4,8,0)'); g2.addColorStop(.35, 'rgba(2,4,8,.72)'); g2.addColorStop(1, 'rgba(2,4,8,.86)'); c.fillStyle = g2; c.fillRect(0, L.subY - 90, W, S.LH - L.subY + 90);
     c.globalAlpha = a; c.fillStyle = DIM; sp(c, WHO[s.sp].jp, cx, L.subY - 14, px * .56, 4, 'center', 500, FJ); c.strokeStyle = FAINT; c.lineWidth = 1; ln(c, cx - 150, L.subY - 2, cx + 150, L.subY - 2);
     const full = textOf(s), n = Math.floor(S.st * 30), lines = wrap(c, full, L.subW, px); let left = n; c.fillStyle = INK; c.textAlign = 'center'; c.font = `500 ${px}px ${FJ}`; c.shadowColor = '#000'; c.shadowBlur = 8;
     lines.forEach((lnx, i) => { const len = [...lnx].length, shown = [...lnx].slice(0, Math.max(0, left)).join(''); left -= len; const w = c.measureText(lnx).width; c.textAlign = 'left'; c.fillText(shown, cx - w / 2, L.subY + px * 1.25 + i * px * 1.45); }); c.shadowBlur = 0; c.textAlign = 'left';
     const done = n >= [...full].length, yb = L.subY + px * 1.25 + lines.length * px * 1.45;
-    if (done && s.ch) { const bw = S.portrait ? 780 : 640, bh = S.portrait ? 84 : 46, gap = S.portrait ? 12 : 8; s.ch.forEach((ch, i) => { const x = cx - bw / 2, y = (S.portrait ? yb + 10 : yb - 26) + i * (bh + gap), on = i === S.sel; c.fillStyle = on ? ACC : 'rgba(8,12,20,.55)'; c.fillRect(x, y, bw, bh); c.strokeStyle = on ? ACC : 'rgba(180,198,226,.6)'; c.lineWidth = 1.5; c.strokeRect(x + .5, y + .5, bw - 1, bh - 1); c.fillStyle = on ? '#0a0a0a' : INK; sp(c, String(i + 1).padStart(2, '0'), x + 18, y + bh / 2 + 7, px * .6, 2, 'left', 700); sp(c, labelOf(ch), x + 70, y + bh / 2 + px * .3, px * .8, 1, 'left', 500, FJ); S.hits.push([x, y, bw, bh, i]); }); }
-    else if (done && Math.floor(S.time * 2) % 2) { c.fillStyle = ACC; c.beginPath(); c.moveTo(cx - 9, yb - 4); c.lineTo(cx + 9, yb - 4); c.lineTo(cx, yb + 8); c.fill(); }
+    if (done && s.ch) { const many = s.ch.length > 3, bw = S.portrait ? 780 : 640, bh = S.portrait ? (many ? 60 : 84) : (many ? 38 : 46), gap = S.portrait ? (many ? 8 : 12) : (many ? 5 : 8); s.ch.forEach((ch, i) => { const x = cx - bw / 2, y = (S.portrait ? yb + 10 : yb - (many ? 34 : 26)) + i * (bh + gap), on = i === S.sel; c.fillStyle = on ? AC : 'rgba(8,12,20,.55)'; c.fillRect(x, y, bw, bh); c.strokeStyle = on ? AC : 'rgba(180,198,226,.6)'; c.lineWidth = 1.5; c.strokeRect(x + .5, y + .5, bw - 1, bh - 1); c.fillStyle = on ? '#0a0a0a' : INK; sp(c, String(i + 1).padStart(2, '0'), x + 18, y + bh / 2 + 7, px * .6, 2, 'left', 700); sp(c, labelOf(ch), x + 70, y + bh / 2 + px * .3, px * .8, 1, 'left', 500, FJ); S.hits.push([x, y, bw, bh, i]); }); }
+    else if (done && Math.floor(S.time * 2) % 2) { c.fillStyle = AC; c.beginPath(); c.moveTo(cx - 9, yb - 4); c.lineTo(cx + 9, yb - 4); c.lineTo(cx, yb + 8); c.fill(); }
     c.fillStyle = 'rgba(160,176,200,.5)'; sp(c, coarse ? 'TAP : 次へ' : 'E / CLICK : 次へ　　ESC : 閉じる', W - 70, S.LH - 22, S.portrait ? 20 : 14, 2, 'right', 500, FJ); c.globalAlpha = 1;
   }
   function draw() { const q = cv.B.width / S.LW; for (const k of 'BP') g[k].setTransform(q, 0, 0, q, 0, 0); const bgNew = S.t < BOOT[S.name] + .6 || S.frame % 12 === 0 || S.t < .05; if (bgNew) { drawB(g.B); tex.B.needsUpdate = true; } if (S.mode === 'screen' || S.frame % 2 === 0 || S.flash > 0) { drawP(g.P); tex.P.needsUpdate = true; } drawO(g.O); }
   function update(dt, time) {
     uT.value = time % 1000; const want = S.active ? 1 : 0; uOp.value += (want - uOp.value) * (1 - Math.exp(-dt * 9)); back.material.opacity = S.mode === 'holo' ? Math.min(1, uOp.value * 1.05) : uOp.value * .9; if (!want && uOp.value < .01) group.visible = false;
     if (!S.active) return; S.frame++; S.time = time; S.t += dt; if (S.t >= BOOT[S.name]) { const was = Math.floor(S.st * 30); S.st += dt; S.slideT += dt; const s = cur(); if (s && typing()) { S.voice += ((s.sp === 'YOU' || s.sp === 'SYS' ? .35 : 1) - S.voice) * .3; if (Math.floor(S.st * 30) > was && Math.floor(S.st * 30) % 3 === 0) audio.uiTick && audio.uiTick(0); } else S.voice *= .86; }
-    S.flash = Math.max(0, S.flash - dt * 3.2); draw();
+    S.flash = Math.max(0, S.flash - dt * 3.2); uGl.value = S.flash; { const s = cur(), w = S.active && s && (s.warn || S.slide === 'threat') ? 1 : 0; uWarn.value += (w - uWarn.value) * (1 - Math.exp(-dt * 6)); } draw();
   }
   return { open, close, update, key, advance, choose, cam, group, state: S, get active() { return S.active; }, get mode() { return S.mode; }, get holoOp() { return S.mode === 'holo' ? uOp.value : 0; },
     // 全画面の板は、後処理（ブルーム・色収差・粒子）を通さずに最後に重ねる
